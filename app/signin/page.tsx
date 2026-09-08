@@ -18,33 +18,33 @@ export default function SignIn() {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError) throw authError;
       if (!data.user) throw new Error('Unable to sign in.');
 
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id,name,role,outlet_id')
-        .eq('id', data.user.id)
-        .single();
+      const { data: profile, error: profileError } = await supabase.rpc('get_my_profile');
+      if (profileError) {
+        await supabase.auth.signOut();
+        throw new Error('Could not load your salon profile. Please try again.');
+      }
 
-      if (profileError || !profile) {
+      const row = Array.isArray(profile) ? profile[0] : profile;
+      if (!row) {
         await supabase.auth.signOut();
         throw new Error('Your account profile is not configured yet.');
       }
 
       const selectedRoleMatches =
-        profile.role === role || (role === 'owner' && profile.role === 'manager');
+        row.role === role || (role === 'owner' && row.role === 'manager');
 
       if (!selectedRoleMatches) {
         await supabase.auth.signOut();
         throw new Error('This account does not match the selected role.');
       }
 
-      localStorage.setItem('hair_salon_user', JSON.stringify(profile));
-      router.push(profile.role === 'staff' ? '/staff' : '/dashboard');
+      localStorage.setItem('hair_salon_user', JSON.stringify(row));
+      router.push(row.role === 'staff' ? '/staff' : '/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to sign in.');
     } finally {
@@ -54,90 +54,21 @@ export default function SignIn() {
 
   return (
     <main className="min-h-screen bg-[#f7f2ea] px-6 py-8">
-      <Link href="/" className="inline-flex items-center gap-2 text-sm text-[#756b62]">
-        <ArrowLeft size={16} /> Home
-      </Link>
-
+      <Link href="/" className="inline-flex items-center gap-2 text-sm text-[#756b62]"><ArrowLeft size={16} /> Home</Link>
       <div className="mx-auto flex min-h-[85vh] max-w-md items-center">
         <div className="w-full rounded-[32px] border border-[#e5ddd2] bg-white p-7 shadow-xl md:p-9">
-          <div className="mb-8">
-            <div className="mb-5 grid h-12 w-12 place-items-center rounded-2xl bg-[#17130f] font-bold text-white">
-              HS
-            </div>
-            <h1 className="serif text-3xl font-bold">Welcome back</h1>
-            <p className="mt-2 text-sm text-[#756b62]">
-              Sign in to your salon workspace.
-            </p>
-          </div>
-
+          <div className="mb-8"><div className="mb-5 grid h-12 w-12 place-items-center rounded-2xl bg-[#17130f] font-bold text-white">HS</div><h1 className="serif text-3xl font-bold">Welcome back</h1><p className="mt-2 text-sm text-[#756b62]">Sign in to your salon workspace.</p></div>
           <div className="mb-6 grid grid-cols-2 rounded-2xl bg-[#f7f2ea] p-1">
-            <button
-              type="button"
-              onClick={() => setRole('staff')}
-              className={`rounded-xl py-3 text-sm font-semibold ${role === 'staff' ? 'bg-white shadow' : ''}`}
-            >
-              Staff
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole('owner')}
-              className={`rounded-xl py-3 text-sm font-semibold ${role === 'owner' ? 'bg-white shadow' : ''}`}
-            >
-              Owner / Manager
-            </button>
+            <button type="button" onClick={() => setRole('staff')} className={`rounded-xl py-3 text-sm font-semibold ${role === 'staff' ? 'bg-white shadow' : ''}`}>Staff</button>
+            <button type="button" onClick={() => setRole('owner')} className={`rounded-xl py-3 text-sm font-semibold ${role === 'owner' ? 'bg-white shadow' : ''}`}>Owner / Manager</button>
           </div>
-
-          {error && (
-            <div className="mb-4 flex gap-2 rounded-2xl bg-red-50 p-3 text-sm text-red-700">
-              <AlertCircle size={18} />
-              <span>{error}</span>
-            </div>
-          )}
-
+          {error && <div className="mb-4 flex gap-2 rounded-2xl bg-red-50 p-3 text-sm text-red-700"><AlertCircle size={18} /><span>{error}</span></div>}
           <form onSubmit={submit} className="space-y-4">
-            <label className="block text-sm font-semibold">
-              Email
-              <div className="mt-2 flex items-center gap-3 rounded-2xl border border-[#e5ddd2] px-4">
-                <Mail size={17} className="text-[#756b62]" />
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  type="email"
-                  placeholder="you@salon.com"
-                  className="w-full bg-transparent py-4 outline-none"
-                />
-              </div>
-            </label>
-
-            <label className="block text-sm font-semibold">
-              Password
-              <div className="mt-2 flex items-center gap-3 rounded-2xl border border-[#e5ddd2] px-4">
-                <LockKeyhole size={17} className="text-[#756b62]" />
-                <input
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  type="password"
-                  placeholder="••••••••"
-                  className="w-full bg-transparent py-4 outline-none"
-                />
-              </div>
-            </label>
-
-            <button
-              disabled={loading}
-              className="w-full rounded-2xl bg-[#17130f] py-4 font-semibold text-white shadow-lg disabled:opacity-60"
-            >
-              {loading
-                ? 'Signing in…'
-                : `Sign in as ${role === 'owner' ? 'Owner / Manager' : 'Staff'}`}
-            </button>
+            <label className="block text-sm font-semibold">Email<div className="mt-2 flex items-center gap-3 rounded-2xl border border-[#e5ddd2] px-4"><Mail size={17} className="text-[#756b62]" /><input value={email} onChange={(e) => setEmail(e.target.value)} required type="email" placeholder="you@salon.com" className="w-full bg-transparent py-4 outline-none" /></div></label>
+            <label className="block text-sm font-semibold">Password<div className="mt-2 flex items-center gap-3 rounded-2xl border border-[#e5ddd2] px-4"><LockKeyhole size={17} className="text-[#756b62]" /><input value={password} onChange={(e) => setPassword(e.target.value)} required type="password" placeholder="••••••••" className="w-full bg-transparent py-4 outline-none" /></div></label>
+            <button disabled={loading} className="w-full rounded-2xl bg-[#17130f] py-4 font-semibold text-white shadow-lg disabled:opacity-60">{loading ? 'Signing in…' : `Sign in as ${role === 'owner' ? 'Owner / Manager' : 'Staff'}`}</button>
           </form>
-
-          <p className="mt-6 text-center text-xs text-[#756b62]">
-            Secure Supabase authentication • Multi-outlet ready
-          </p>
+          <p className="mt-6 text-center text-xs text-[#756b62]">Secure Supabase authentication • Multi-outlet ready</p>
         </div>
       </div>
     </main>
