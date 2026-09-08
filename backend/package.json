@@ -1,0 +1,1 @@
+{"name":"hair-salon-api","private":true,"version":"0.1.0","type":"module","scripts":{"start":"node server.js"},"dependencies":{"cors":"latest","express":"latest","pg":"latest"}}
