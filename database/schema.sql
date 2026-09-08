@@ -1,0 +1,11 @@
+create schema if not exists hair_salon;
+create table if not exists hair_salon.outlets(id uuid primary key default gen_random_uuid(),name text not null,city text default 'Mandsaur',active boolean not null default true,created_at timestamptz not null default now());
+create table if not exists hair_salon.roles(id smallserial primary key,name text unique not null);
+insert into hair_salon.roles(name) values ('owner'),('manager'),('staff') on conflict(name) do nothing;
+create table if not exists hair_salon.users(id uuid primary key default gen_random_uuid(),outlet_id uuid references hair_salon.outlets(id),role_id smallint not null references hair_salon.roles(id),name text not null,email text unique not null,password_hash text not null,active boolean not null default true,created_at timestamptz not null default now());
+create table if not exists hair_salon.services(id uuid primary key default gen_random_uuid(),outlet_id uuid references hair_salon.outlets(id),name text not null,price numeric(10,2) not null default 0,active boolean not null default true,created_at timestamptz not null default now());
+create table if not exists hair_salon.customers(id uuid primary key default gen_random_uuid(),outlet_id uuid not null references hair_salon.outlets(id),name text not null,created_at timestamptz not null default now());
+create table if not exists hair_salon.transactions(id uuid primary key default gen_random_uuid(),outlet_id uuid not null references hair_salon.outlets(id),staff_id uuid not null references hair_salon.users(id),customer_id uuid not null references hair_salon.customers(id),service_id uuid not null references hair_salon.services(id),amount_paid numeric(10,2) not null check(amount_paid>=0),payment_mode text not null check(payment_mode in ('cash','upi')),served_at timestamptz not null default now());
+create table if not exists hair_salon.audit_logs(id bigserial primary key,actor_id uuid references hair_salon.users(id),action text not null,entity_type text,entity_id uuid,metadata jsonb,created_at timestamptz not null default now());
+create index if not exists transactions_outlet_date_idx on hair_salon.transactions(outlet_id,served_at desc);
+create index if not exists transactions_staff_date_idx on hair_salon.transactions(staff_id,served_at desc);
