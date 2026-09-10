@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-const LOGO_SRC = '/lucky-salon-logo.png';
+const LOGO_SRC = '/lucky-salon-logo-exact.png';
 
 function LuckyLogo({ className = '' }: { className?: string }) {
   return (
