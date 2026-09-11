@@ -12,9 +12,9 @@ export default function Settings() {
   const [message, setMessage] = useState('');
 
   async function resetDashboard() {
-    if (!confirm('Reset dashboard metrics? This will remove transaction records only. Your outlets, services, staff, managers and customer profiles will NOT be deleted.')) return;
+    if (!confirm('Reset the dashboard view? Transaction history and all salon data will be preserved.')) return;
 
-    setMessage('Resetting dashboard transactions...');
+    setMessage('Resetting dashboard view...');
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       setMessage('Please sign in again.');
@@ -24,7 +24,7 @@ export default function Settings() {
     const { error } = await supabase.rpc('reset_owner_dashboard');
     setMessage(
       error?.message ||
-        'Dashboard metrics reset successfully. Outlets, services, staff and customers were kept.'
+        'Dashboard reset completed. All transaction history, outlets, services, staff, managers and customers were preserved.'
     );
   }
 
@@ -106,11 +106,11 @@ export default function Settings() {
           <div className="flex items-center gap-3">
             <RotateCcw className="text-[#8c6b43]" />
             <div>
-              <h2 className="font-bold">Reset dashboard metrics</h2>
+              <h2 className="font-bold">Reset dashboard view</h2>
               <p className="text-xs text-[#756b62]">
-                Clears transaction history used for today/monthly sales. It does
-                NOT remove your outlets, services, staff, managers or customer
-                profiles.
+                Resets the dashboard view without deleting transaction history.
+                Your outlets, services, staff, managers and customer profiles are
+                also preserved.
               </p>
             </div>
           </div>
@@ -119,7 +119,7 @@ export default function Settings() {
             onClick={resetDashboard}
             className="mt-4 flex items-center gap-2 rounded-2xl border border-[#d8c5a8] px-4 py-3 text-sm font-semibold text-[#6f4d27]"
           >
-            <RotateCcw size={16} /> Reset dashboard metrics
+            <RotateCcw size={16} /> Reset dashboard view
           </button>
         </section>
       </div>
