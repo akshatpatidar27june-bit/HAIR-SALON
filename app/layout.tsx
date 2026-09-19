@@ -6,7 +6,7 @@ export const metadata={title:'Lucky Hair Salon | Since 1994',description:'Lucky 
 export default function RootLayout({children}:{children:React.ReactNode}){
   return <html lang="en"><body>
     <BrandExperience/>
-    <div className="pointer-events-none fixed left-3 top-3 z-[80] select-none sm:left-4 sm:top-4"><BrandLogo/></div>
+    <div className="pointer-events-none fixed left-1/2 top-2 z-[80] -translate-x-1/2 select-none"><BrandLogo/></div>
     {children}
   </body></html>
 }
