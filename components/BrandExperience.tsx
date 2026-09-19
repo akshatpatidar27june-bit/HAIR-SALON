@@ -17,7 +17,7 @@ function LuckyLogo({ className = '' }: { className?: string }) {
 
 export function BrandLogo() {
   return (
-    <div className="h-[64px] w-[64px] overflow-hidden rounded-[10px] sm:h-[72px] sm:w-[72px]">
+    <div className="h-[46px] w-[46px] overflow-hidden rounded-[10px] sm:h-[52px] sm:w-[52px]">
       <LuckyLogo />
     </div>
   );
