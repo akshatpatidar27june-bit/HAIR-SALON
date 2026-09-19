@@ -9,3 +9,4 @@ if (!url || !key) {
 
 export const supabase = createClient(url, key, { db: { schema: 'salon' } });
 export const supabasePublic = createClient(url, key);
+export const supabaseCatalog = createClient(url, key, { db: { schema: 'salon' } });
