@@ -97,8 +97,8 @@ export default function AkshatDeveloperPage() {
               </div>
               {!state.locked && (
                 <label className="mt-6 block text-sm font-medium">Message visitors will see
-                  <textarea value={reason} onChange={e=>setReason(e.target.value)} maxLength={500} rows={4} placeholder="Explain why the website is temporarily unavailable…" className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-black/20 px-4 py-3 outline-none focus:border-[#d5a94d]"/>
-                  <span className="mt-1 block text-right text-xs text-white/40">{reason.length}/500</span>
+                  <textarea value={reason} onChange={e=>setReason(e.target.value)}  rows={4} placeholder="Explain why the website is temporarily unavailable…" className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-black/20 px-4 py-3 outline-none focus:border-[#d5a94d]"/>
+                  
                 </label>
               )}
               {state.locked && state.message && <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4"><p className="text-xs uppercase tracking-wider text-[#d5a94d]">Current visitor message</p><p className="mt-2 whitespace-pre-wrap text-sm text-white/80">{state.message}</p></div>}
