@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (body.action === 'lock') {
-      const reason = (body.reason || '').trim().slice(0, 500);
+      const reason = (body.reason || '').trim();
       if (reason.length < 5) return NextResponse.json({ error: 'Please enter a reason (at least 5 characters).' }, { status: 400 });
       await updateSiteLock(true, reason);
       return NextResponse.json({ ok: true, message: 'Website locked.' });
